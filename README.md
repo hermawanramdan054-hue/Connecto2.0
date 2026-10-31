@@ -13,7 +13,6 @@ Aplikasi ini sekarang sudah dikemas secara mandiri (pre-packaged), sehingga sang
 * 🗂️ **Sistem Tab Internal (In-App Tab):** Memadukan dua jendela utama dalam satu halaman ringkas untuk menghemat memori RAM laptop Anda:
   1. **📊 Dashboard / Tests:** Panel Pengujian Utama + Tabel Laporan Hasil Pengujian.
   2. **🌐 Speedtest Web Browser:** Satu jendela penuh yang memuat situs `speedtest.net` resmi secara langsung melalui `<iframe>`.
-* 📸 **Fitur Ambil Bukti / Screenshot:** Menyediakan tombol jepretan layar otomatis untuk mengambil bukti visual pengujian seluruh area dashboard yang dilengkapi dengan watermark penanda waktu yang akurat (`Speedtest_Proof_YYYYMMDD_HHMM.png`).
 * 📄 **Smart Report PDF:** Menyediakan tombol cetak laporan resmi berformat PDF dengan data hasil pengujian dan diagnosis koneksi.
 
 ---
