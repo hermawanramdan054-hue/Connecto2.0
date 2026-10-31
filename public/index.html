@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pengujian Jaringan — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img src="/app-icon" alt="Connecto" class="brand-logo" />
+  </div>
+  <div class="topbar-status">
+    <span class="dot" id="socketDot"></span>
+    <span id="socketStatusText">Menghubungkan…</span>
+  </div>
+</header>
+
+<div class="offline-banner" id="offlineBanner" hidden>
+  Koneksi internet perangkat Anda terputus. Menunggu koneksi kembali…
+</div>
+
+<!-- Judul Aplikasi Retro Pixel Art -->
+<div class="header-title-container" style="text-align: center; margin: 20px 0;">
+  <h1 class="main-title">CONNECTO</h1>
+  <p style="color: #8a99ad; font-size: 0.95rem; margin-top: 6px;">Pengecekan Cerdas untuk Selalu Terhubung Stabil</p>
+</div>
+
+  <main class="grid grid-2col" id="tabDashboard">
+
+    <section class="card" id="panelPengujian">
+      <div class="card-head">
+        <span class="eyebrow">01 — Pengujian</span>
+        <h2>Ping &amp; Speedtest</h2>
+        <p class="card-desc">Konfigurasi area dan target untuk memulai pengujian gabungan Gateway & Speedtest secara real-time.</p>
+      </div>
+
+      <div class="field-row">
+        <label for="selArea">Area / Lokasi</label>
+        <select id="selArea">
+          <option value="">— PILIH AREA —</option>
+          <option value="__CUSTOM__">— Masukkan Target Custom —</option>
+          <optgroup label="1. PUBLIK AREA">
+            <option>AMBASADOR LOUNGE</option>
+            <option>LOBBY</option>
+            <option>MIRTEN LOUNGE</option>
+            <option>CANTIGI LOUNGE</option>
+            <option>POOL</option>
+            <option>GARDEN</option>
+            <option>PAGO RESTAURANT</option>
+            <option>HB GRILL</option>
+            <option>MASJID</option>
+          </optgroup>
+          <optgroup label="2. ROOM">
+            <option data-category="room">1ST FLOOR WING A</option>
+            <option data-category="room">1ST FLOOR WING B</option>
+            <option data-category="room">2ND FLOOR WING A</option>
+            <option data-category="room">2ND FLOOR WING B</option>
+            <option data-category="room">3RD FLOOR WING A</option>
+            <option data-category="room">3RD FLOOR WING B</option>
+            <option data-category="room">4TH FLOOR WING A</option>
+            <option data-category="room">4TH FLOOR WING B</option>
+            <option data-category="room">5TH FLOOR WING A</option>
+            <option data-category="room">5TH FLOOR WING B</option>
+          </optgroup>
+          <optgroup label="3. MEETING ROOM">
+            <option>CIMANUK</option>
+            <option>CISANGGARUNG</option>
+            <option>CITARIK</option>
+            <option>CITANDUY</option>
+            <option>SUAGI 1</option>
+            <option>SUAGI 2</option>
+            <option>PAPANDAYAN 1</option>
+            <option>PAPANDAYAN 2</option>
+            <option>PAPANDAYAN 3</option>
+            <option>PAPANDAYAN 4</option>
+            <option>PAPANDAYAN 5</option>
+            <option>PAPANDAYAN 6</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="field-row" id="roomNumberRow" hidden>
+        <label for="inputRoomNumber">Nomor Kamar (opsional)</label>
+        <input type="text" id="inputRoomNumber" placeholder="cth. 308" autocomplete="off" />
+      </div>
+
+      <div class="field-row" id="customAreaNameRow" hidden>
+        <label for="customAreaNameInput">Nama Area Target Custom</label>
+        <input type="text" id="customAreaNameInput" placeholder="cth. Ruang Server Utama" autocomplete="off" />
+      </div>
+      <div class="field-row" id="customAreaTargetRow" hidden>
+        <label for="customAreaTargetInput">IP / Hostname Target Custom (Objective)</label>
+        <input type="text" id="customAreaTargetInput" placeholder="cth. 192.168.1.254 atau my-router.local" autocomplete="off" />
+      </div>
+
+    <!-- Target Domestik -->
+<div class="field-row" id="domestikFieldRow">
+  <label for="selDomestik">Ping Domestik</label>
+  <select id="selDomestik">
+    <option value="">— PILIH TARGET DOMESTIK —</option>
+    <option value="__CUSTOM_DOM__">— Masukkan Target Custom —</option>
+  </select>
+</div>
+<div class="field-row" id="customDomTargetRow" hidden>
+  <label for="customDomTargetInput">IP / Hostname Target Domestik Custom</label>
+  <input type="text" id="customDomTargetInput" placeholder="cth. 192.168.1.1">
+</div>
+
+<!-- Target Internasional -->
+<div class="field-row">
+  <label for="selInternasional">Ping Internasional</label>
+  <select id="selInternasional">
+    <option value="">— PILIH TARGET INTERNASIONAL —</option>
+    <option value="__CUSTOM_INTL__">— Masukkan Target Custom —</option>
+  </select>
+</div>
+
+      <div class="field-row" id="customIntlTargetRow" hidden>
+        <label for="customIntlTargetInput">IP / Hostname Target Internasional Custom</label>
+        <input type="text" id="customIntlTargetInput" placeholder="cth. 8.8.8.8 atau 1.1.1.1" autocomplete="off" />
+      </div>
+
+      <div class="btn-row" style="margin-top:6px;">
+        <button id="btnStart" class="btn btn-primary btn-lg">Start</button>
+        <button id="btnStop" class="btn btn-danger btn-lg" disabled>Stop</button>
+      </div>
+
+      <div class="progress-track" id="ujiProgressTrack" style="margin-top:16px;">
+        <div class="progress-fill" id="ujiProgress"></div>
+        <div class="progress-tick" style="left:25%;"></div>
+        <div class="progress-tick" style="left:50%;"></div>
+        <div class="progress-tick" style="left:75%;"></div>
+      </div>
+      <p class="status-line" id="ujiStatusText">Siap. Pilih Area &amp; kedua target lalu klik Start.</p>
+
+      <div class="ping-stats" style="margin-top:16px;">
+        <div class="stat"><span class="stat-label">Download (Avg)</span><span class="stat-val" id="rDownload">– Mbps</span></div>
+        <div class="stat"><span class="stat-label">Upload (Avg)</span><span class="stat-val" id="rUpload">– Mbps</span></div>
+        <div class="stat"><span class="stat-label">Ping</span><span class="stat-val" id="rPing">–</span></div>
+        <div class="stat"><span class="stat-label">Jitter</span><span class="stat-val" id="rJitter">–</span></div>
+        <div class="stat"><span class="stat-label">Minimum</span><span class="stat-val" id="rMin">–</span></div>
+        <div class="stat"><span class="stat-label">Maximum</span><span class="stat-val" id="rMax">–</span></div>
+      </div>
+
+      <div class="hotel-suggestion" id="hotelSuggestionBox" hidden>
+        <div class="hs-label">Saran Otomatis untuk Tamu · <span class="hs-status" id="hsStatus">–</span></div>
+        <p id="hsMessage" style="margin:0;">–</p>
+      </div>
+
+      <div class="hotel-suggestion diagnosis-box" id="diagnosisBox" hidden>
+        <div class="hs-label">Diagnosis Pengujian · <span class="hs-status" id="diagnosisStatus">–</span></div>
+        <p id="diagnosisReason" style="margin:0 0 4px;">–</p>
+        <p id="diagnosisAction" class="diagnosis-action" style="margin:0;">–</p>
+      </div>
+    </section>
+
+    <section class="card" id="panelLaporan">
+      <div class="card-head">
+        <span class="eyebrow">02 — Laporan</span>
+        <h2>Riwayat Hasil Pengujian</h2>
+        <p class="card-desc">Data diperbarui secara otomatis secara real-time setiap kali pengujian selesai.</p>
+      </div>
+
+      <div class="history-head">
+        <h3>Tabel Laporan</h3>
+        <div class="history-actions">
+          <a class="btn btn-outline" id="btnUnduhPdf" href="/api/report/download/pdf">Unduh Laporan (PDF)</a>
+          <button id="btnResetLaporan" class="btn btn-ghost">Reset Laporan</button>
+        </div>
+      </div>
+
+      <div class="table-controls">
+        <div class="field-row field-row--search">
+          <label for="tableSearch">Cari</label>
+          <input type="text" id="tableSearch" placeholder="Cari Waktu / Area / Gateway…" autocomplete="off" />
+        </div>
+        <div class="field-row field-row--filter">
+          <label for="filterArea">Filter Area</label>
+          <select id="filterArea">
+            <option value="">— Semua Area —</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th class="col-time" rowspan="2">Time</th>
+              <th class="col-area" rowspan="2">Area</th>
+              <th class="col-gateway" rowspan="2">Gateway</th>
+              <th colspan="3">Package</th>
+              <th class="col-average" rowspan="2">Average</th>
+              <th class="col-ping" rowspan="2">Ping</th>
+              <th class="col-download" rowspan="2">Download (Avg)</th>
+              <th class="col-upload" rowspan="2">Upload (Avg)</th>
+              <th class="col-status" rowspan="2">Status</th>
+              <th class="col-aksi" rowspan="2"></th>
+            </tr>
+            <tr>
+              <th class="col-sent">Sent (%)</th>
+              <th class="col-received">Received (%)</th>
+              <th class="col-lost">Lost (%)</th>
+            </tr>
+          </thead>
+          <tbody id="reportBody">
+            <tr><td colspan="12" class="empty-row">Belum ada data.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="hint">Pilih salah satu baris data untuk menampilkan wawasan dan analisis rekomendasi otomatis secara real-time.</p>
+
+      <div class="hotel-suggestion" id="rowSuggestionBox" hidden>
+        <div class="hs-label">Saran untuk Baris Terpilih · <span class="hs-status" id="rsStatus">–</span></div>
+        <p id="rsMessage" style="margin:0;">–</p>
+      </div>
+    </section>
+
+    <section class="card card-wide" id="panelEdukasi">
+      <div class="card-head">
+        <span class="eyebrow">03 — Edukasi</span>
+        <h2>Panduan &amp; Edukasi Jaringan</h2>
+        <p class="card-desc">Cara membaca hasil pengujian di atas — penjelasan singkat istilah teknis untuk pengguna maupun klien yang awam jaringan.</p>
+      </div>
+
+      <div class="edu-accordion">
+        <details class="edu-item" open>
+          <summary>Ping (Latency) — apa itu &amp; kenapa penting</summary>
+          <div class="edu-item-body">
+            <p><strong>Ping</strong> (atau <em>latency</em>) adalah waktu yang dibutuhkan data untuk pergi dari perangkat Anda ke server tujuan lalu kembali lagi, diukur dalam milidetik (<strong>ms</strong>). Semakin <strong>kecil</strong> angkanya, semakin <strong>baik</strong> — artinya respons jaringan terasa lebih instan, misalnya saat membuka halaman web, chatting, atau bermain game online. Ping yang tinggi membuat aksi di layar terasa "telat" dibanding yang sebenarnya Anda lakukan.</p>
+          </div>
+        </details>
+
+        <details class="edu-item">
+          <summary>Average &amp; Ping — dua ukuran per Gateway</summary>
+          <div class="edu-item-body">
+            <p>Setiap sub-baris Gateway (Objective / Domestik / Internasional) punya dua kolom hasil: <strong>Average</strong> adalah rata-rata waktu ping dari 3 percobaan ke target tersebut, dan kolom <strong>Ping</strong> menampilkan angka hasil percobaan terakhir — semuanya dihitung langsung dari data jaringan saat pengujian.</p>
+          </div>
+        </details>
+
+        <details class="edu-item">
+          <summary>Bandwidth (Download &amp; Upload) — beda kecepatan unduh &amp; unggah</summary>
+          <div class="edu-item-body">
+            <p><strong>Bandwidth</strong> mengukur seberapa banyak data yang bisa dikirim/diterima per detik, dalam satuan <strong>Mbps</strong> (Megabit per detik). <strong>Download</strong> adalah kecepatan menerima data dari internet ke perangkat Anda. <strong>Upload</strong> adalah kecepatan mengirim data dari perangkat Anda ke internet. Nilai yang tercatat adalah hasil satu speedtest utama, dengan satu percobaan ulang otomatis jika terjadi kegagalan sementara.</p>
+          </div>
+        </details>
+
+        <details class="edu-item">
+          <summary>Packet Loss (Sent / Received / Lost) — dampak data yang hilang</summary>
+          <div class="edu-item-body">
+            <p><strong>Sent</strong> adalah jumlah paket data yang dikirim, <strong>Received</strong> adalah jumlah yang berhasil kembali, dan <strong>Lost</strong> adalah selisih keduanya (paket yang hilang di tengah jalan) — biasanya karena jaringan padat, sinyal lemah, atau gangguan perangkat keras. Semakin besar angka Lost, semakin sering data harus dikirim ulang, dan semakin terasa tidak nyaman pengalaman berinternetnya (suara putus-putus, gambar macet, koneksi game "nge-lag").</p>
+          </div>
+        </details>
+      </div>
+
+      <div class="edu-status-guide">
+        <h3>Standar Kelayakan Status</h3>
+        <div class="status-guide-grid">
+          <div class="status-guide-card excellent">
+            <span class="status-badge status-excellent">Excellent</span>
+            <p><strong>Download (Avg) &gt; 100 Mbps.</strong><br>Koneksi kelas atas — sangat cepat &amp; stabil, ideal untuk kebutuhan enterprise, multi-stream 4K/8K, dan beban jaringan berat sekalipun.</p>
+          </div>
+          <div class="status-guide-card verygood">
+            <span class="status-badge status-verygood">Very Good</span>
+            <p><strong>Download (Avg) 50 – 100 Mbps.</strong><br>Koneksi cepat &amp; stabil — nyaman untuk gaming online, video call (Zoom/Meet), hingga streaming 4K tanpa buffering.</p>
+          </div>
+          <div class="status-guide-card good">
+            <span class="status-badge status-good">Good</span>
+            <p><strong>Download (Avg) 10 – 50 Mbps.</strong><br>Cukup untuk kebutuhan standar — browsing, media sosial, dan streaming kualitas standar, mungkin sedikit lag pada aktivitas berat.</p>
+          </div>
+          <div class="status-guide-card poor">
+            <span class="status-badge status-poor">Poor</span>
+            <p><strong>Download (Avg) &lt; 10 Mbps.</strong><br>Koneksi lambat/kurang layak — berpotensi buffering, lag berat, atau delay signifikan pada panggilan/streaming maupun game online.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

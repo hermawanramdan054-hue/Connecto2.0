@@ -1,0 +1,586 @@
+/**
+ * style.css (v7 — Layout 340px/1fr, Banner Merah Tua, Live Stats 2x3, Warna Metrik)
+ * ------------------------------------------------------------
+ * Perubahan v7:
+ *  - [POIN 1] .grid max-width 1240px -> 1400px; .grid-2col dari 1fr 1fr menjadi
+ *    340px 1fr (Panel Pengujian kiri tetap ~340px, Panel Riwayat Laporan sisa ruang).
+ *  - [POIN 2] .offline-banner: latar merah tua solid (#7f1d1d) + teks putih (#FFFFFF).
+ *  - [POIN 3] .ping-stats: grid 3 kolom -> 2 kolom (2x3, sesuai urutan Download/Upload/
+ *    Ping/Jitter/Minimum/Maximum).
+ *  - [POIN 6] .metric-value.metric-*: warna teks dinamis angka Download/Upload di tabel.
+ *  - [POIN 8] .hotel-suggestion: kotak Saran Otomatis Tamu Hotel di panel Pengujian.
+ * ------------------------------------------------------------
+ * Perubahan v6:
+ *  - [DIHAPUS] Rule .foot (footer kredensial teks abu-abu) — elemennya sudah dibuang
+ *    dari index.html, rule CSS-nya ikut dibuang supaya tidak jadi dead code.
+ *  - [BARU] Padding bawah .grid ditambah (64px -> 96px) supaya halaman tidak terasa
+ *    "terpotong" mendadak di ujung scroll setelah footer dihapus.
+ *  - [DIPERCANTIK] .edu-item & .status-guide-card (modul "Panduan & Edukasi Jaringan")
+ *    sekarang pakai var(--surface) + border lebih jelas supaya kontras dengan
+ *    background di kedua tema, padding lebih lega, ikon +/- accordion jadi bulatan
+ *    kecil beraksen warna.
+ *  - [BARU] Motif background "network grid/nodes" pada <body> (garis grid halus + titik
+ *    simpul + 2 radial glow ambient di pojok, HANYA terlihat di Dark Mode lewat token
+ *    --grid-*), dan aksen garis neon tipis di bawah label eyebrow ("01 — PENGUJIAN" dst)
+ *    tiap header card, dengan glow halus khusus Dark Mode.
+ * ------------------------------------------------------------
+ * Riwayat v5 — "Human-touch UI": clean modern SaaS dashboard look — estetika neon/
+ * glow/scanline/gradient radial ala cyberpunk dihapus, diganti tampilan clean mirip
+ * Stripe/Vercel Dashboard, font tunggal Inter di seluruh UI, plus Dark/Light Mode
+ * toggle (localStorage) & placeholder logo aplikasi di topbar.
+ * ------------------------------------------------------------
+ */
+
+:root{
+  --bg: #0b0f17;
+  --surface: #131924;
+  --surface-muted: #0e131c;
+  --border: #262e3d;
+  --border-strong: #333e52;
+  --ink: #e5e7eb;
+  --muted: #94a3b8;
+  --muted-2: #64748b;
+
+  --accent: #3b82f6;
+  --accent-ink: #ffffff;
+  --accent-soft: #16233a;
+
+  --accent-good: #4ade80;
+  --accent-good-bg: #0f2b1c;
+  --accent-good-border: #1f4d33;
+
+  --accent-warn: #fbbf24;
+  --accent-warn-bg: #2e2409;
+  --accent-warn-border: #4d3c10;
+
+  --accent-bad: #f87171;
+  --accent-bad-bg: #2d1414;
+  --accent-bad-border: #4a1f1f;
+
+  /* [BARU - POIN 2] Warna khusus status "Excellent" (biru) — dipisah dari --accent supaya
+   * tetap bisa dibedakan dari warna aksen umum UI (tombol/link) kalau nanti berubah. */
+  --accent-excellent: #60a5fa;
+  --accent-excellent-bg: #142238;
+  --accent-excellent-border: #26436e;
+
+  --accent-dl: #2563eb;
+  --accent-ul: #7c3aed;
+
+  /* [BARU] Token untuk motif background "network grid/nodes" — dipisah dari token
+   * warna UI lain supaya gampang di-tuning tanpa risiko mempengaruhi elemen lain.
+   * Light Mode: grid titik abu sangat halus, TANPA glow (bersih, tidak mengganggu teks). */
+  --grid-line: rgba(96,165,250,.12);
+  --grid-dot: rgba(96,165,250,.30);
+  --grid-glow-a: rgba(59,130,246,.14);
+  --grid-glow-b: rgba(139,92,246,.10);
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow-sm: 0 1px 2px rgba(16,24,40,.05);
+  --shadow-md: 0 2px 6px rgba(16,24,40,.06), 0 1px 2px rgba(16,24,40,.04);
+
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Transisi ringan pada permukaan utama. */
+body, .card, .topbar, .stat, input, select, textarea, button,
+table, th, td, .offline-banner{
+  transition: background-color .25s ease, color .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; padding:0; }
+body{
+  background-color:var(--bg);
+  /* [BARU] Motif "network grid/nodes": garis grid horizontal+vertikal tipis (32px)
+   * dengan titik simpul di tiap perpotongan, ditambah 2 radial glow lembut di pojok
+  * layar dengan glow ambient halus. Urutan layer: dot & garis grid di atas (crisp),
+  * glow ambient di paling
+   * belakang (soft, di belakang semua). Ukuran 32px dipilih supaya cukup halus/rapat
+   * tapi tetap terlihat sebagai "grid", bukan noise. */
+  background-image:
+    radial-gradient(var(--grid-dot) 1px, transparent 1px),
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
+    radial-gradient(circle at 8% 6%, var(--grid-glow-a), transparent 42%),
+    radial-gradient(circle at 92% 96%, var(--grid-glow-b), transparent 42%);
+  background-size:
+    32px 32px,
+    32px 32px,
+    32px 32px,
+    100% 100%,
+    100% 100%;
+  background-repeat:
+    repeat, repeat, repeat, no-repeat, no-repeat;
+  color:var(--ink);
+  font-family:var(--font);
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+
+  margin: 0;
+  overflow-x: auto;
+}
+
+/* ---------------- TOPBAR ---------------- */
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 24px; /* Padding dalam biar isi icon & text ga nempel garis */
+  width:100%; /* Bikin lebarnya mentok penuh */
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  box-sizing:border-box;
+}
+.brand{ display:flex; align-items:center; gap:11px; }
+.brand-logo{
+  height:32px; width:32px; object-fit:contain; border-radius:7px;
+  flex:0 0 auto; background:var(--surface-muted); border:1px solid var(--border);
+}
+.brand-title{ font-weight:700; letter-spacing:-.01em; font-size:15px; color:var(--ink); }
+.brand-title span{ color:var(--accent); }
+.brand-sub{ font-size:12px; color:var(--muted); margin-top:1px; }
+
+.topbar-status{ display:flex; align-items:center; gap:10px; font-size:12.5px; color:var(--muted); }
+.dot{ width:8px; height:8px; border-radius:50%; background:var(--accent-warn); transition:.2s; }
+.dot.ok{ background:var(--accent-good); }
+.dot.bad{ background:var(--accent-bad); }
+
+/* ---------------- LAYOUT ----------------
+ * [DIUBAH] Container dashboard sekarang center-aligned dengan max-width:1400px
+ * (naik dari 1240px) supaya tidak ada lagi sisa ruang kosong "merusak" di sisi
+ * kanan layar pada layar lebar. Panel kiri (Pengujian) dibuat lebar TETAP ~340px
+ * dan panel kanan (Riwayat Laporan) mengambil SISA ruang (1fr) — bukan lagi
+ * pembagian 50/50 (1fr 1fr) seperti sebelumnya, supaya tabel riwayat yang butuh
+ * ruang lebih lega (banyak kolom) punya jatah lebar yang wajar. */
+.grid{
+  max-width:1400px; margin:0 auto;
+  padding:28px 24px 96px; /* [DIUBAH] padding-bottom diperbesar 64px -> 96px: dulu jarak ini
+    dibantu teks footer kredensial di bawahnya, sekarang footer itu dihapus jadi ruang
+    napas di dasar halaman perlu ditambah langsung di sini supaya scroll tidak berhenti
+    mendadak pas di ujung card Edukasi. */
+  display:grid;
+  grid-template-columns:340px 1fr;
+  gap:20px;
+}
+.card-wide{ grid-column:1 / -1; }
+/* [DIUBAH - POIN 1] Panel Pengujian (kiri) ~340px tetap, Panel Riwayat Laporan (kanan)
+   mengambil sisa ruang (1fr). */
+.grid-2col{ grid-template-columns:340px 1fr; }
+@media (max-width:900px){ .grid{ grid-template-columns:1fr; padding:20px; } .grid-2col{ grid-template-columns:1fr; } }
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-sm);
+  padding:24px;
+}
+.card-head{ margin-bottom:20px; }
+.eyebrow{
+  font-size:11.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--accent);
+  position:relative; display:inline-block; padding-bottom:9px;
+}
+/* Aksen garis koneksi pada label header card. */
+.eyebrow::after{
+  content:""; position:absolute; left:0; bottom:0; width:34px; height:2px; border-radius:2px;
+  background:linear-gradient(90deg, var(--accent), var(--accent-ul));
+}
+.eyebrow::after{ box-shadow:0 0 8px 1px var(--accent), 0 0 2px var(--accent); }
+.card-head h2{ margin:6px 0 6px; font-size:19px; font-weight:700; letter-spacing:-.01em; color:var(--ink); }
+.card-desc{ color:var(--muted); font-size:13.5px; line-height:1.55; margin:0; }
+
+/* ---------------- FORM ELEMENTS ---------------- */
+.field-row label{ font-size:12.5px; font-weight:600; color:var(--ink); display:block; margin-bottom:6px; }
+.input-with-btn{ display:flex; gap:8px; margin-top:6px; flex-wrap:wrap; }
+input[type="text"], input[type="number"]{
+  width:100%;
+  background:var(--surface); border:1px solid var(--border-strong); color:var(--ink);
+  padding:10px 12px; border-radius:var(--radius-sm); font-family:var(--font); font-size:13.5px;
+  outline:none; transition:border-color .15s, box-shadow .15s;
+}
+input[type="text"]:focus, input[type="number"]:focus{
+  border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft);
+}
+input::placeholder{ color:var(--muted-2); }
+.hint{ font-size:12px; color:var(--muted); margin:10px 0 0; line-height:1.5; }
+.status-line{ font-size:12.5px; color:var(--muted); margin:10px 0 0; }
+
+select{
+  width:100%;
+  background:var(--surface) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%236b7280'/></svg>") no-repeat right 12px center;
+  border:1px solid var(--border-strong); color:var(--ink);
+  padding:10px 34px 10px 12px; border-radius:var(--radius-sm); font-family:var(--font); font-size:13.5px;
+  outline:none; cursor:pointer; appearance:none; -webkit-appearance:none;
+  transition:border-color .15s, box-shadow .15s;
+}
+select:focus{ border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+.field-row{ margin-bottom:16px; }
+
+.btn{
+  border:none; cursor:pointer; border-radius:var(--radius-sm); padding:10px 16px;
+  font-family:var(--font); font-weight:600; font-size:13.5px; letter-spacing:-.005em;
+  transition:.15s ease;
+}
+.btn:disabled{ opacity:.5; cursor:not-allowed; }
+.btn-primary{ background:var(--accent); color:var(--accent-ink); box-shadow:var(--shadow-sm); }
+.btn-primary:hover:not(:disabled){ background:#1d4ed8; }
+.btn-ghost{ background:transparent; color:var(--accent-bad); border:1px solid var(--accent-bad-border); }
+.btn-ghost:hover{ background:var(--accent-bad-bg); }
+.btn-outline{ background:var(--surface); color:var(--ink); border:1px solid var(--border-strong); }
+.btn-outline:hover{ border-color:var(--accent); color:var(--accent); background:var(--accent-soft); }
+.btn-lg{ padding:13px 22px; font-size:14.5px; width:100%; }
+.btn-sm{ padding:6px 12px; font-size:12px; }
+
+/* [BARU - POIN 3] Tombol Stop (merah/danger) + baris Start/Stop berdampingan */
+.btn-danger{ background:var(--accent-bad); color:#ffffff; box-shadow:var(--shadow-sm); }
+.btn-danger:hover:not(:disabled){ filter:brightness(0.92); }
+.btn-row{ display:flex; gap:10px; }
+.btn-row .btn{ flex:1 1 0; }
+
+/* ---------------- PING STATS (LIVE STATS PANEL) ---------------- */
+/* [POIN 3 - FIX] 6 kartu tetap dalam grid 3 kolom x 2 baris yang RAPI & SIMETRIS (bukan
+ * auto-fit yang bisa membuat baris terakhir "mentok ke kanan"/tidak center kalau jumlah
+ * kartu tidak pas mengisi baris). justify-content:center memastikan grid tetap di tengah
+ * kontainer walau lebar panel berubah. */
+.ping-stats{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  justify-content:center;
+  gap:10px;
+  margin-top:18px;
+}
+.stat{
+  background:var(--surface-muted); border:1px solid var(--border); border-radius:var(--radius-sm);
+  padding:10px 8px; text-align:center; min-width:0; /* min-width:0 penting supaya konten tidak memaksa grid melebar */
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.stat-label{
+  display:block; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; font-weight:600;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; /* label panjang (mis. "MINIMUM") tidak lagi terpotong acak */
+}
+.stat-val{
+  display:block; font-size:14px; font-weight:700; margin-top:4px; color:var(--ink);
+  font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+
+/* [DIUBAH] position:relative supaya .progress-tick (garis sekat) bisa ditempatkan absolut
+   di atas bar. [DIUBAH] transition width diperhalus (dari .15s linear -> .35s ease) supaya
+   animasi "lompat" ke tiap sekat (33%/66%/100%) terlihat jelas & mulus saat Tes 1/2/3 selesai. */
+.progress-track{
+  position:relative; height:6px; border-radius:6px; background:var(--surface-muted);
+  border:1px solid var(--border); margin-top:16px; overflow:hidden;
+}
+.progress-fill{ height:100%; width:0%; background:var(--accent); transition:width .35s ease; }
+/* [BARU] Garis sekat (33% & 66%) — pembagi visual 3 bagian progress bar, dipakai untuk
+   menandai Tes 1/2/3 Speedtest. Ditempatkan di atas .progress-fill (z-index lebih tinggi)
+   supaya tetap terlihat baik saat bar kosong maupun sudah terisi sebagian. */
+.progress-tick{
+  position:absolute; top:0; bottom:0; width:2px; background:var(--surface);
+  opacity:.9; z-index:2; pointer-events:none;
+}
+
+/* [BARU - POIN 8] Kotak "Saran Otomatis" untuk tamu hotel — muncul di bawah panel Live
+   Stats begitu 1 pengujian selesai, berisi hasil lookup Matriks 4x4 (Download x Upload)
+   final_status + hotel_message. border-left berwarna mengikuti final_status (dipasang
+   dinamis lewat class sg-excellent/sg-verygood/sg-good/sg-poor dari app.js). */
+.hotel-suggestion{
+  margin-top:16px; padding:14px 16px; border-radius:var(--radius-sm);
+  background:var(--surface-muted); border:1px solid var(--border); border-left-width:4px;
+  font-size:12.5px; line-height:1.6; color:var(--ink);
+}
+.hotel-suggestion .hs-label{
+  display:flex; align-items:center; gap:6px; font-size:10.5px; font-weight:700;
+  text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin-bottom:6px;
+}
+.hotel-suggestion .hs-status{ font-weight:700; text-transform:none; letter-spacing:0; }
+.hotel-suggestion.sg-excellent{ border-left-color:var(--accent-excellent); }
+.hotel-suggestion.sg-excellent .hs-status{ color:var(--accent-excellent); }
+.hotel-suggestion.sg-verygood{ border-left-color:var(--accent-good); }
+.hotel-suggestion.sg-verygood .hs-status{ color:var(--accent-good); }
+.hotel-suggestion.sg-good{ border-left-color:var(--accent-warn); }
+.hotel-suggestion.sg-good .hs-status{ color:var(--accent-warn); }
+.hotel-suggestion.sg-poor{ border-left-color:var(--accent-bad); }
+.hotel-suggestion.sg-poor .hs-status{ color:var(--accent-bad); }
+.diagnosis-box{ border-left-color:var(--accent); }
+.diagnosis-box.diagnosis-failed{ border-left-color:var(--accent-bad); }
+.diagnosis-box.diagnosis-warning{ border-left-color:var(--accent-warn); }
+.diagnosis-box.diagnosis-ok{ border-left-color:var(--accent-good); }
+.diagnosis-box .diagnosis-action{ color:var(--muted); }
+
+.divider{ height:1px; background:var(--border); margin:22px 0; }
+
+.history-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; flex-wrap:wrap; gap:8px; }
+.history-head h3{ margin:0; font-size:15px; font-weight:700; color:var(--ink); }
+.history-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+.badge{ font-size:10.5px; padding:4px 10px; border-radius:20px; border:1px solid var(--border); color:var(--muted); }
+.badge.on{ color:var(--accent-good); border-color:var(--accent-good-border); background:var(--accent-good-bg); }
+.badge.off{ color:var(--accent-bad); border-color:var(--accent-bad-border); background:var(--accent-bad-bg); }
+
+.table-wrap{
+  width: 100%;
+  max-height: 520px;
+  overflow-x: auto !important;
+  overflow-y: auto !important;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  display: block;
+}
+
+.history-table{ 
+  width: 100%; 
+  min-width: 1300px !important; 
+  border-collapse: collapse; 
+  font-size: 12.5px; 
+  table-layout: auto; 
+}
+
+.history-table td, .history-table th {
+  text-align: center; 
+  vertical-align: middle; 
+  padding: 10px 10px; 
+  color: var(--muted); 
+  font-weight: 600; 
+  font-size: 10.5px;
+  text-transform: uppercase; 
+  letter-spacing: .04em; 
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-muted); 
+  white-space: nowrap !important;
+}
+/* [BARU - POIN 1] Header sekarang 2 baris (baris pertama: kolom rowspan="2" + "Packets"
+   colspan="3"; baris kedua: Sent/Received/Lost). Kedua baris dibuat sticky supaya tetap
+   terlihat saat tabel discroll vertikal — baris kedua diberi "top" seukuran tinggi baris
+   pertama (nilai perkiraan berdasarkan padding+font-size di atas) supaya tidak tumpang tindih. */
+.history-table thead tr:first-child th{ position:sticky; top:0; z-index:2; }
+.history-table thead tr:last-child th{ position:sticky; top:34px; z-index:1; }
+
+/* [POIN 5 & POIN Alignment] Rata tengah horizontal & vertikal untuk SELURUH sel tabel. */
+.history-table td{
+  padding:10px 10px; border-bottom:1px solid var(--border); color:var(--ink);
+  font-variant-numeric:tabular-nums; white-space:nowrap;
+  text-align:center; vertical-align:middle;
+}
+/* [POIN 4 - FIX HOVER 3 SUB-BARIS] Karena struktur tabel pakai rowspan="3" (kolom Time/
+ * Area/Download/Upload/Status/Aksi cuma benar-benar ada di <tr> PERTAMA dari tiap SET),
+ * CSS ":hover" polos pada <tr> TIDAK CUKUP: begitu kursor ada di sub-baris ke-2/ke-3, hanya
+ * <tr> itu sendiri yang ter-highlight (cuma kolom Gateway..Ping-nya), sedangkan sel rowspan
+ * (yang secara visual "menyatu" ke-3 baris tapi secara DOM cuma milik <tr> pertama) tetap
+ * bening/tidak ikut gelap -> tampilan belang. Solusinya: app.js menambahkan class
+ * ".row-hover" ke SEMUA <tr> dalam satu SET (data-row-id sama) sekaligus saat salah satu
+ * di-hover, lalu class ini yang dipakai (bukan :hover) supaya warna latar seragam & MENYATU
+ * di seluruh 3 sub-baris Gateway sekaligus kolom Packets-nya.
+ */
+.history-table tbody tr.row-hover > td{ background:var(--surface-muted); }
+/* [BARU - POIN 3] Baris yang sedang DIPILIH (diklik) untuk menampilkan saran di bawah
+   tabel — dibedakan dari sekadar hover lewat warna aksen tipis di sisi kiri, dan tetap
+   memakai teknik ".row-selected" pada SEMUA <tr> dalam satu SET (sama seperti ".row-hover"
+   di atas) supaya seragam menyatu di seluruh 3 sub-baris + kolom rowspan. */
+.history-table tbody tr.row-selected > td{ background:var(--accent-soft); }
+.history-table tbody tr{ cursor:pointer; }
+.history-table tbody tr:last-child td{ border-bottom:none; }
+.empty-row{ color:var(--muted); text-align:center; padding:22px; white-space:normal !important; }
+
+/* [DIUBAH - POIN 1] Lebar MINIMUM per kolom sekarang berbasis CLASS (bukan nth-child),
+   karena struktur rowspan="3" membuat jumlah <td> per <tr> berbeda-beda (baris pertama
+   dari tiap set = 12 kolom, sub-baris ke-2/ke-3 hanya 6 kolom Gateway..Ping), sehingga
+   nth-child tidak lagi bisa diandalkan untuk menyasar kolom yang sama secara konsisten.
+   Kolom AREA & GATEWAY dibolehkan wrap ke 2 baris (white-space:normal) supaya nama Area/IP
+   yang agak panjang tetap tampil utuh. */
+.col-time{ min-width:120px; }
+.col-area{ min-width:150px; white-space:normal; }
+.col-gateway{ min-width:170px; white-space:normal; }
+.col-sent, .col-received, .col-lost{ min-width:64px; }
+.col-average{ min-width:80px; }
+.col-ping{ min-width:110px; }
+.col-download, .col-upload{ min-width:96px; }
+.col-status{ min-width:100px; }
+.col-aksi{ min-width:56px; }
+
+/* [BARU] Kolom & tombol AKSI (hapus baris) — ikon tempat sampah, disorot jelas saat baris di-hover. */
+.col-aksi{ overflow:visible !important; }
+.btn-delete-row{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:30px; height:30px; padding:0; border-radius:var(--radius-sm);
+  background:transparent; border:1px solid transparent; color:var(--muted);
+  cursor:pointer; opacity:0; transition:opacity .15s, background .15s, color .15s, border-color .15s;
+}
+.history-table tbody tr.row-hover .btn-delete-row,
+.btn-delete-row:focus-visible{
+  opacity:1;
+}
+.btn-delete-row:hover{
+  background:var(--accent-bad-bg); border-color:var(--accent-bad-border); color:var(--accent-bad);
+}
+.btn-delete-row:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+/* Di layar sentuh (tanpa hover) ikon tetap terlihat samar supaya tombolnya tetap bisa ditemukan/diketuk. */
+@media (hover:none){
+  .btn-delete-row{ opacity:.55; }
+}
+
+/* Badge status Good/Mid/Bad — logika perhitungan ada di app.js: computeStatus() */
+.status-badge{
+  display:inline-block; font-size:10.5px; font-weight:700;
+  padding:3px 10px; border-radius:20px; text-transform:uppercase; letter-spacing:.03em;
+  border:1px solid transparent; white-space:nowrap;
+}
+/* [DIUBAH - POIN 2] Badge status 4 KATEGORI — logika perhitungan ada di app.js: computeStatus()
+   & server.js: computeStatusLabel(). Excellent=biru, Very Good=hijau, Good=kuning, Poor=merah. */
+.status-badge.status-excellent{ color:var(--accent-excellent); background:var(--accent-excellent-bg); border-color:var(--accent-excellent-border); }
+.status-badge.status-verygood{ color:var(--accent-good); background:var(--accent-good-bg); border-color:var(--accent-good-border); }
+.status-badge.status-good{ color:var(--accent-warn); background:var(--accent-warn-bg); border-color:var(--accent-warn-border); }
+.status-badge.status-poor{ color:var(--accent-bad); background:var(--accent-bad-bg); border-color:var(--accent-bad-border); }
+.status-badge.status-na{ color:var(--muted); background:var(--surface-muted); border-color:var(--border); }
+
+/* [BARU - POIN 6] Pewarnaan teks DINAMIS untuk angka metrik Download & Upload di tabel
+   riwayat laporan — dihitung dari threshold MASING-MASING angka itu SENDIRI (bukan dari
+   badge Status gabungan), supaya pengguna langsung tahu metrik mana yang jadi penyebab
+   status total (worst-case). Memakai token warna yang SAMA dengan status-badge supaya
+   konsisten (Excellent=biru, Very Good=hijau, Good=kuning/orange, Poor=merah). */
+.metric-value{ font-weight:700; }
+.metric-value.metric-excellent{ color:var(--accent-excellent); }
+.metric-value.metric-verygood{ color:var(--accent-good); }
+.metric-value.metric-good{ color:var(--accent-warn); }
+.metric-value.metric-poor{ color:var(--accent-bad); }
+
+/* Header kolom bisa diklik untuk sort — tampilan & data TIDAK berubah, hanya urutan tampil */
+.history-table th[data-key]{ cursor:pointer; user-select:none; white-space:nowrap; }
+.history-table th[data-key]:hover{ color:var(--ink); }
+.sort-ind{ display:inline-block; margin-left:4px; font-size:9px; color:var(--accent); }
+
+/* Kotak Search + Filter Area di atas tabel — read-only, tidak mengubah data sumber */
+.table-controls{
+  display:flex; gap:14px; flex-wrap:wrap; margin-bottom:14px;
+}
+.field-row--search{ flex:1 1 240px; margin-bottom:0; }
+.field-row--filter{ flex:0 1 220px; margin-bottom:0; }
+.field-row--search input, .field-row--filter select{ margin-top:0; }
+
+code{ background:var(--surface-muted); border:1px solid var(--border); padding:1px 6px; border-radius:5px; font-size:12px; }
+
+/* ============ OFFLINE BANNER ============
+ * [DIUBAH - POIN 2] Latar belakang sekarang MERAH TUA solid (bukan lagi merah muda/
+ * "-bg" tipis) dengan teks PUTIH BERSIH (#FFFFFF) supaya kontrasnya tinggi & mudah
+ * dibaca di kedua tema (Light/Dark) — warna ini sengaja TIDAK memakai token
+ * --accent-bad* (yang berubah per-tema) karena banner ini harus selalu tampil
+ * sebagai "peringatan merah tegas" yang konsisten. */
+.offline-banner{
+  background:#7f1d1d; color:#ffffff; font-size:13px;
+  text-align:center; padding:10px; font-weight:700; border-bottom:1px solid #5c1414;
+}
+
+/* ============ MODUL EDUKASI: "Panduan & Edukasi Jaringan" ============
+ * [DIPERCANTIK] Sebelumnya .edu-item pakai background var(--surface-muted) — di Light
+ * Mode itu warna abu SANGAT muda hampir menyatu dengan --surface (putih) & --bg (abu
+ * muda) sekelilingnya, jadi kartu accordion terasa "menyatu"/kurang kontras. Sekarang
+ * .edu-item & .status-guide-card konsisten pakai var(--surface) (putih di Light / abu
+ * gelap kartu di Dark) dengan border yang lebih jelas, supaya terlihat sebagai "kartu"
+ * yang jelas menonjol dari background, di kedua tema — TANPA mengubah struktur/konten. */
+.edu-accordion{ display:flex; flex-direction:column; gap:12px; }
+.edu-item{
+  border:1px solid var(--border-strong); border-radius:var(--radius-sm);
+  background:var(--surface); overflow:hidden;
+  box-shadow:var(--shadow-sm);
+}
+.edu-item summary{
+  cursor:pointer; padding:16px 18px; font-weight:600; font-size:13.5px; color:var(--ink);
+  list-style:none; display:flex; align-items:center; justify-content:space-between; gap:10px;
+}
+.edu-item summary::-webkit-details-marker{ display:none; }
+.edu-item summary::after{
+  content:"+"; font-size:17px; font-weight:400; color:var(--accent); flex:0 0 auto;
+  width:22px; height:22px; border-radius:50%; background:var(--accent-soft);
+  display:flex; align-items:center; justify-content:center; line-height:1;
+  transition:transform .18s ease, background-color .18s ease;
+}
+.edu-item[open]{ border-color:var(--accent); }
+.edu-item[open] summary::after{ content:"–"; }
+.edu-item summary:hover{ color:var(--accent); }
+.edu-item-body{ padding:0 18px 18px; color:var(--muted); font-size:13px; line-height:1.7; border-top:1px solid var(--border); margin-top:2px; padding-top:14px; }
+.edu-item-body strong{ color:var(--ink); }
+
+.edu-status-guide{ margin-top:26px; }
+.edu-status-guide h3{ margin:0 0 14px; font-size:14.5px; font-weight:700; color:var(--ink); }
+/* [DIUBAH - POIN 2] 4 kategori sekarang -> grid 4 kolom (menyesuaikan ke 2 kolom di layar
+   sedang, 1 kolom di layar sempit, supaya kartu tidak terlalu sempit dibaca). */
+.status-guide-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+@media (max-width:1080px){ .status-guide-grid{ grid-template-columns:repeat(2,1fr); } }
+@media (max-width:560px){ .status-guide-grid{ grid-template-columns:1fr; } }
+
+.status-guide-card{
+  border:1px solid var(--border-strong); border-left-width:4px; border-radius:var(--radius-sm);
+  background:var(--surface); padding:16px 18px;
+  box-shadow:var(--shadow-sm);
+}
+.status-guide-card.excellent{ border-left-color:var(--accent-excellent); }
+.status-guide-card.verygood{ border-left-color:var(--accent-good); }
+.status-guide-card.good{ border-left-color:var(--accent-warn); }
+.status-guide-card.poor{ border-left-color:var(--accent-bad); }
+.status-guide-card p{ margin:12px 0 0; font-size:12.5px; color:var(--muted); line-height:1.6; }
+.status-guide-card p strong{ color:var(--ink); }
+
+/* ============ RESPONSIVE / MOBILE ============
+ * Breakpoint 900px & 560px sudah ada di atas (grid 1 kolom, ping-stats 3 kolom).
+ * Bagian ini MELENGKAPI untuk layar HP yang lebih sempit (≤600px) supaya:
+ *  - topbar tidak sempit/tumpang tindih
+ *  - padding & jarak antar elemen lebih hemat ruang
+ *  - tombol jadi full-width (lebih mudah disentuh jari)
+ *  - tabel riwayat tidak memakan seluruh tinggi layar (scroll lebih pendek)
+ *  - kotak search/filter menumpuk 1 kolom penuh, tidak berdempetan
+ */
+@media (max-width:600px){
+  .topbar{
+    flex-wrap:wrap; gap:10px;
+    padding:14px 16px;
+  }
+  .topbar-status{ flex-wrap:wrap; gap:8px 10px; }
+  .brand-sub{ font-size:11px; }
+
+  .grid{ padding:14px 14px 56px; gap:14px; }
+  .card{ padding:16px 16px 18px; }
+  .card-head h2{ font-size:17px; }
+  .eyebrow{ font-size:10px; }
+
+  /* Tombol utama & aksi laporan jadi full-width -> target sentuh lebih besar di HP */
+  .btn-lg{ width:100%; }
+  .history-actions{ width:100%; }
+  .history-actions .btn{ flex:1 1 auto; text-align:center; }
+
+  /* Semua tombol (bukan cuma btn-lg) -> tinggi minimal ~44px, mengikuti standar target
+     sentuh Apple HIG / Material Design supaya mudah di-tap jari. */
+  .btn{ padding:12px 16px; font-size:13.5px; min-height:44px; }
+  .btn-sm{ padding:10px 14px; min-height:40px; }
+
+  /* Form input/select sedikit lebih besar supaya nyaman disentuh jari */
+  input[type="text"], input[type="number"], select{
+    padding:12px 12px; font-size:14px; min-height:44px;
+  }
+
+  /* Tabel riwayat: batasi tinggi relatif ke layar (bukan angka tetap 520px yang
+     kepanjangan di HP), lebar tetap bisa di-scroll horizontal (.table-wrap sudah
+     overflow-x:auto) supaya semua kolom tetap bisa dilihat tanpa tabel dipaksa mengecil. */
+  .table-wrap{ max-height:60vh; }
+
+  /* Kotak Search & Filter Area: masing-masing penuh 1 baris, tidak berdempetan */
+  .field-row--search, .field-row--filter{ flex-basis:100%; }
+
+  .status-guide-grid{ gap:10px; }
+}
+
+/* HP sangat sempit (mis. layar ~360-380px) -> ping-stats 3 kolom masih terlalu padat */
+@media (max-width:380px){
+  .ping-stats{ grid-template-columns:repeat(2,1fr); }
+}
+
+/* Layar sedang (panel kiri masih 2-kolom tapi sudah cukup lega) -> 6 kartu tetap
+   rapi 3x2, cuma sedikit dilonggarkan gap-nya. Di atas breakpoint ini tetap 3 kolom
+   supaya kartu tidak terlalu melebar & tidak "mentok" ke satu sisi. */
+@media (min-width:901px) and (max-width:1080px){
+  .ping-stats{ gap:8px; }
+}
+
+/* [DIHAPUS] Custom Scrollbar Tabel (::-webkit-scrollbar) — dikembalikan ke
+ * scrollbar native browser sepenuhnya. .table-wrap tetap pakai
+ * overflow-x:auto / overflow-y:auto (lihat rule .table-wrap di atas),
+ * jadi scroll tetap berfungsi normal, hanya tampilannya sekarang default
+ * bawaan tiap browser/OS, bukan style kustom lagi. */
